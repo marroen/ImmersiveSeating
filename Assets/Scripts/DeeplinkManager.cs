@@ -71,12 +71,15 @@ public class DeepLinkManager : MonoBehaviour
         //TODO edit according to selection code
         if (parameters.TryGetValue("seat", out string directSeatStr))
         {
+            /* Marti: commented this out for now due to compiler error
             int directSeat = ParseInt(directSeatStr);  // Parse the direct seat parameter from the URL
 
             var selectionManager = camera?.GetComponent<SelectionManager>();
             selectionManager.FlyToSeat(directSeat);
             
+            
             Debug.Log($"Direct seat selection: {directSeat}");  // Log the direct seat selection
+            */
         }
         
 
