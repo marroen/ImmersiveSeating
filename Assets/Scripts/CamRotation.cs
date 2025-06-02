@@ -5,6 +5,14 @@ using System.Runtime.InteropServices;
 
 public class CamRotation : MonoBehaviour
 {
+    [Header("External Control")]
+    [SerializeField] private bool allowExternalRotationControl = false; // NEW: Allow external scripts to control rotation
+    public bool AllowExternalRotationControl
+    {
+        get { return allowExternalRotationControl; }
+        set { allowExternalRotationControl = value; }
+    }
+
     [Header("Rotation Settings")]
     [SerializeField] private bool enableDeviceRotation = true;
     [SerializeField] private float smoothing = 0.1f;
@@ -106,7 +114,7 @@ public class CamRotation : MonoBehaviour
     {
         updateCount++;
         // If we're transitioning, skip normal rotation updates
-        if (isTransitioning)
+        if (isTransitioning || allowExternalRotationControl)
             return;
 
         if (!deviceMotionAvailable || !enableDeviceRotation)
