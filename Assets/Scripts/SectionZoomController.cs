@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class SectionZoomController : MonoBehaviour
@@ -8,6 +9,9 @@ public class SectionZoomController : MonoBehaviour
     public Camera mainCamera;
     public float zoomDuration = 1.5f;
     public AnimationCurve zoomCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    [Header("Center Stage")]
+    public GameObject center;
 
     [Header("Gyro Control")]
     public CamRotation camRotationScript; // Reference to CamRotation script
@@ -130,8 +134,8 @@ public class SectionZoomController : MonoBehaviour
         // Perform raycast to detect which object was touched
         if (Physics.Raycast(ray, out hit))
         {
-            Debug.Log("Something was touched!");
             GameObject touchedObject = hit.collider.gameObject;
+            Debug.Log($"{touchedObject.name} was touched!");
             string touchedSection = GetObjectSection(touchedObject);
 
             // If we're currently zoomed in
@@ -143,13 +147,21 @@ public class SectionZoomController : MonoBehaviour
                     Debug.Log($"Already zoomed into {currentZoomedSection} section");
                     return;
                 }
+                else if (touchedObject.tag == "Available")
+                {
+                    Debug.Log($"Touched available seat!");
+                    
+                    StartCoroutine(JustWait(touchedObject));
+                    //ZoomToPosition(touchedObject.transform.position, 1, )
+                    
+                }
                 // If touching a different section or non-section object, zoom out
-                else
+                /*else TODO: make into button instead
                 {
                     Debug.Log($"Touching different section ({touchedSection}), zooming out");
                     ZoomToOriginal();
                     return;
-                }
+                }*/
             }
 
             // If we're not zoomed in, zoom into the touched section
@@ -158,6 +170,35 @@ public class SectionZoomController : MonoBehaviour
                 Debug.Log($"Zooming to section ({touchedSection})");
                 ZoomToSection(touchedSection);
             }
+        }
+    }
+
+    IEnumerator JustWait(GameObject touchedObject)
+    {
+        if (camRotationScript != null)
+        {
+            camRotationScript.AllowExternalRotationControl = true;
+        }
+
+        // Position and rotate camera
+        mainCamera.transform.position = touchedObject.transform.position + Vector3.up;
+        mainCamera.orthographicSize = 1;
+
+        Vector3 directionToCenter = (center.transform.position - mainCamera.transform.position);
+        directionToCenter.y = 0;
+        Quaternion centerLookingRotation = Quaternion.LookRotation(directionToCenter);
+
+        mainCamera.transform.rotation = centerLookingRotation;
+
+        // Small delay to ensure transform is applied
+        yield return new WaitForSeconds(0.5f);
+
+        // Calibrate and re-enable gyro
+        if (camRotationScript != null)
+        {
+            camRotationScript.SetNewInitialRotation(centerLookingRotation);
+            camRotationScript.AllowExternalRotationControl = false;
+            Debug.Log("Camera positioned and gyro calibrated");
         }
     }
 
@@ -223,6 +264,7 @@ public class SectionZoomController : MonoBehaviour
         if (camRotationScript != null)
         {
             camRotationScript.AllowExternalRotationControl = true;
+            Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
         }
 
         Vector3 startPosition = mainCamera.transform.position;
@@ -282,14 +324,15 @@ public class SectionZoomController : MonoBehaviour
         mainCamera.transform.rotation = qRotation;
 
         // Update zoom state
-        isZoomed = zoomingIn;
-        if (!isZoomed)
+        isZoomed = isZooming;
+        if (!isZooming)
         {
             currentZoomedSection = null;
 
             if (camRotationScript != null)
             {
                 camRotationScript.AllowExternalRotationControl = false;
+                Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
             }
         }
 

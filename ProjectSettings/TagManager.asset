@@ -8,6 +8,7 @@ TagManager:
   - LeftSection
   - RightSection
   - BackSection
+  - Available
   layers:
   - Default
   - TransparentFX

@@ -168,6 +168,14 @@ public class CamRotation : MonoBehaviour
         Debug.Log("Device orientation calibrated");
     }
 
+    public void SetNewInitialRotation(Quaternion newInitialRotation)
+    {
+        initialRotation = newInitialRotation;
+        // Force immediate calibration with new initial rotation
+        Calibrate();
+        Debug.Log($"Set new initial rotation to: {newInitialRotation.eulerAngles}");
+    }
+
     private void UpdateCameraRotation()
     {
         Quaternion rotation = initialRotation;
