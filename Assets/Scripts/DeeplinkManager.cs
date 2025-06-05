@@ -26,7 +26,8 @@ public class DeepLinkManager : MonoBehaviour
     public GameObject center;
 
     public SectionZoomController sectionZoomController;
-    public CamRotation camRotationScript;
+    public CamRotationGyro camRotationGyroScript;
+    public CamRotationSwipe camRotationSwipeScript;
 
     private void Awake()
     {
@@ -127,9 +128,14 @@ public class DeepLinkManager : MonoBehaviour
     public IEnumerator GoToSeat(GameObject touchedObject)
     {
 
-        if (camRotationScript != null)
+        if (camRotationGyroScript != null)
         {
-            camRotationScript.AllowExternalRotationControl = true;
+            camRotationGyroScript.AllowExternalRotationControl = true;
+        }
+
+        if (camRotationSwipeScript != null)
+        {
+            camRotationSwipeScript.AllowExternalRotationControl = true;
         }
 
         // Position and rotate camera
@@ -147,11 +153,19 @@ public class DeepLinkManager : MonoBehaviour
         Debug.Log("Camera positioned and waiting for gyro calibration");
 
         // Calibrate and re-enable gyro
-        if (camRotationScript != null)
+        if (camRotationGyroScript != null)
         {
-            camRotationScript.SetNewInitialRotation(centerLookingRotation);
-            camRotationScript.AllowExternalRotationControl = false;
+            camRotationGyroScript.SetNewInitialRotation(centerLookingRotation);
+            camRotationGyroScript.AllowExternalRotationControl = false;
             Debug.Log("Camera positioned and gyro calibrated");
+        }
+
+        // Use swipe if selected
+        if (camRotationSwipeScript != null)
+        {
+            camRotationSwipeScript.SetNewInitialRotation(centerLookingRotation);
+            camRotationSwipeScript.AllowExternalRotationControl = false;
+            Debug.Log("Camera positioned and swipe activated");
         }
     }
 

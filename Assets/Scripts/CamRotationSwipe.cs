@@ -4,6 +4,14 @@ using System.Collections;
 
 public class CamRotationSwipe : MonoBehaviour
 {
+    [Header("External Control")]
+    [SerializeField] private bool allowExternalRotationControl = false; // NEW: Allow external scripts to control rotation
+    public bool AllowExternalRotationControl
+    {
+        get { return allowExternalRotationControl; }
+        set { allowExternalRotationControl = value; }
+    }
+
     [Header("Touch Settings")]
     [SerializeField] private bool enableTouchRotation = true;
     [SerializeField] private float touchSensitivity = 2f;
@@ -110,7 +118,7 @@ public class CamRotationSwipe : MonoBehaviour
         updateCount++;
 
         // If we're transitioning, skip normal rotation updates
-        if (isTransitioning)
+        if (isTransitioning || allowExternalRotationControl)
             return;
 
         if (!enableTouchRotation)
@@ -118,6 +126,27 @@ public class CamRotationSwipe : MonoBehaviour
 
         HandleTouchInput();
         UpdateCameraRotation();
+    }
+
+    public void SetNewInitialRotation(Quaternion newInitialRotation)
+    {
+        initialRotation = newInitialRotation;
+
+        // Store initial rotation
+        targetRotation = initialRotation;
+
+        // Extract initial angles from the rotation
+        Vector3 initialEuler = initialRotation.eulerAngles;
+        currentHorizontalAngle = initialEuler.y;
+        currentVerticalAngle = initialEuler.x;
+
+        // Convert to -180 to 180 range for easier calculation
+        if (currentVerticalAngle > 180)
+            currentVerticalAngle -= 360;
+        if (currentHorizontalAngle > 180)
+            currentHorizontalAngle -= 360;
+
+        Debug.Log($"Set new initial rotation to: {newInitialRotation.eulerAngles}");
     }
 
     private void HandleTouchInput()
@@ -389,32 +418,5 @@ public class CamRotationSwipe : MonoBehaviour
         }
 
         text.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0); // Ensure fully transparent
-    }
-
-    void OnGUI()
-    {
-        if (showDebug)
-        {
-            // Basic debug text display
-            GUI.Label(new Rect(10, 10, 400, 30), debugText);
-
-            if (verboseDebug)
-            {
-                // More detailed debug info
-                GUI.Label(new Rect(10, 40, 300, 30), $"Touch Rotation Enabled: {enableTouchRotation}");
-                GUI.Label(new Rect(10, 70, 300, 30), $"Is Touching: {isTouching}");
-                GUI.Label(new Rect(10, 100, 300, 30), $"Touch Sensitivity: {touchSensitivity}");
-                GUI.Label(new Rect(10, 130, 300, 30), $"Vertical Limits: {minVerticalAngle}° to {maxVerticalAngle}°");
-
-                if (enableHorizontalLimits)
-                {
-                    GUI.Label(new Rect(10, 160, 300, 30), $"Horizontal Limits: {minHorizontalAngle}° to {maxHorizontalAngle}°");
-                }
-                else
-                {
-                    GUI.Label(new Rect(10, 160, 300, 30), "Horizontal Limits: Disabled");
-                }
-            }
-        }
     }
 }

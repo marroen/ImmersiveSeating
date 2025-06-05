@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Runtime.InteropServices;
 
-public class CamRotation : MonoBehaviour
+public class CamRotationGyro : MonoBehaviour
 {
     [Header("External Control")]
     [SerializeField] private bool allowExternalRotationControl = false; // NEW: Allow external scripts to control rotation

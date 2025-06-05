@@ -665,7 +665,8 @@ MonoBehaviour:
   premiumSeat: {fileID: 226008039}
   center: {fileID: 636164421}
   sectionZoomController: {fileID: 1282087692}
-  camRotationScript: {fileID: 330585547}
+  camRotationGyroScript: {fileID: 0}
+  camRotationSwipeScript: {fileID: 0}
 --- !u!4 &285192600
 Transform:
   m_ObjectHideFlags: 0
@@ -901,6 +902,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c038379ece448743bc3bf7770800406, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowExternalRotationControl: 0
   enableTouchRotation: 1
   touchSensitivity: 2
   smoothing: 0.1
@@ -1242,7 +1244,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 682b76737e5ab0b46a6f3f933f0f43f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hideButton: {fileID: 731644108}
 --- !u!1 &378742275
 GameObject:
   m_ObjectHideFlags: 0
@@ -1919,17 +1920,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a5b64de17a28a140b33d0ae8c6665b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seatX: 10
-  seatY: 10
-  seatZ: 10
-  seatRotationX: 0
-  seatRotationY: 0
-  camera: {fileID: 330585543}
-  fadeDuration: 2
-  sectionPanel: {fileID: 0}
-  seatPanel: {fileID: 0}
-  seatPrice: 0
-  seatIndex: 0
 --- !u!114 &562696028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2068,7 +2058,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   center: {fileID: 0}
-  camRotationScript: {fileID: 0}
+  camRotationGyroScript: {fileID: 0}
+  camRotationSwipeScript: {fileID: 0}
   topViewButton: {fileID: 0}
   mainSectionZoomPosition: {x: 12, y: 18, z: 0}
   leftSectionZoomPosition: {x: -5, y: 5, z: -10}
@@ -2231,17 +2222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a5b64de17a28a140b33d0ae8c6665b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seatX: 10
-  seatY: 10
-  seatZ: 10
-  seatRotationX: 0
-  seatRotationY: 0
-  camera: {fileID: 330585543}
-  fadeDuration: 2
-  sectionPanel: {fileID: 0}
-  seatPanel: {fileID: 0}
-  seatPrice: 0
-  seatIndex: 0
 --- !u!1001 &622841178
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2492,17 +2472,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a5b64de17a28a140b33d0ae8c6665b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seatX: 0
-  seatY: 0
-  seatZ: 0
-  seatRotationX: 0
-  seatRotationY: 0
-  camera: {fileID: 0}
-  fadeDuration: 0.5
-  sectionPanel: {fileID: 904830472}
-  seatPanel: {fileID: 1887219484}
-  seatPrice: 0
-  seatIndex: 0
 --- !u!114 &674948455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3590,9 +3559,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54127c61019d2f447b19de55c955d78e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sectionIndex: 0
-  seatPanel: {fileID: 1887219484}
-  sectionPanel: {fileID: 904830472}
 --- !u!114 &967391077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4397,7 +4363,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   center: {fileID: 636164421}
-  camRotationScript: {fileID: 330585547}
+  camRotationGyroScript: {fileID: 0}
+  camRotationSwipeScript: {fileID: 0}
   topViewButton: {fileID: 112113993}
   mainSectionZoomPosition: {x: 44, y: 40, z: 0.99}
   leftSectionZoomPosition: {x: 10.5, y: 40, z: -26}
@@ -5192,17 +5159,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a5b64de17a28a140b33d0ae8c6665b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seatX: 10
-  seatY: 10
-  seatZ: 10
-  seatRotationX: 0
-  seatRotationY: 0
-  camera: {fileID: 330585543}
-  fadeDuration: 2
-  sectionPanel: {fileID: 0}
-  seatPanel: {fileID: 0}
-  seatPrice: 0
-  seatIndex: 0
 --- !u!114 &1608790446
 MonoBehaviour:
   m_ObjectHideFlags: 0

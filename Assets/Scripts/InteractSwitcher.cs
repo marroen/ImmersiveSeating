@@ -5,7 +5,7 @@ using System.Collections;
 public class InteractSwitcher : MonoBehaviour
 {
     [Header("Camera Scripts")]
-    [SerializeField] private CamRotation gyroScript;
+    [SerializeField] private CamRotationGyro gyroScript;
     [SerializeField] private CamRotationSwipe swipeScript;
 
     [Header("UI Buttons")]
@@ -162,7 +162,7 @@ public class InteractSwitcher : MonoBehaviour
                     yield return null;
                     try
                     {
-                        swipeScript.ResetRotation();
+                        //swipeScript.ResetRotation();
                         Debug.Log("Swipe script reset");
                     }
                     catch (System.Exception e)
