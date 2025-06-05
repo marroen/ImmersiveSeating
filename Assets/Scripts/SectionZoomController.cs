@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SectionZoomController : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class SectionZoomController : MonoBehaviour
 
     [Header("Gyro Control")]
     public CamRotation camRotationScript; // Reference to CamRotation script
+
+    [Header("Top View")]
+    public Button topViewButton;
 
     [Header("Section Zoom Positions")]
     public Vector3 mainSectionZoomPosition = new Vector3(0, 5, -10);
@@ -34,15 +38,23 @@ public class SectionZoomController : MonoBehaviour
     public float rightSectionRotation = -90f; // 90 degrees counter-clockwise
     public float backSectionRotation = 180f;  // 180 degrees
 
+    [Header("Price Display")]
+    public TextMeshProUGUI priceText; // Reference to the price text UI element
+    public float price1 = 50f;  // Price for first seat type
+    public float price2 = 75f;  // Price for second seat type
+    public float price3 = 100f; // Price for third seat type
+
     private Vector3 originalCameraPosition;
     private float originalCameraSize;
     private Vector3 originalCameraRotation; // Store full rotation as Vector3
+    private Quaternion originalCameraRotationQuaternion; // Store original rotation as Quaternion for gyro reset
     private float currentCameraZRotation; // Track only Z rotation separately
     private bool isZooming = false;
 
     // Track current zoom state
     private string currentZoomedSection = null;
     private bool isZoomed = false;
+    private bool isInSeatView = false; // Track if we're in seat POV
 
     // Lists to store child objects by section
     private List<GameObject> mainSectionObjects = new List<GameObject>();
@@ -59,14 +71,28 @@ public class SectionZoomController : MonoBehaviour
         if (camRotationScript == null)
             camRotationScript = FindObjectOfType<CamRotation>();
 
+        if (topViewButton != null)
+        {
+            //topViewButton.onClick.AddListener(ZoomToOriginal);
+            topViewButton.gameObject.SetActive(false);
+            Debug.Log("topViewButton set up");
+        }
+
         // Store original camera settings
         originalCameraPosition = mainCamera.transform.position;
         originalCameraSize = mainCamera.orthographicSize;
         originalCameraRotation = mainCamera.transform.eulerAngles; // Store full rotation
+        originalCameraRotationQuaternion = mainCamera.transform.rotation; // Store original rotation as Quaternion
         currentCameraZRotation = originalCameraRotation.z; // Initialize current Z rotation
 
         // Categorize child objects by their tags
         CategorizeChildObjects();
+
+        // Make sure price text is initially hidden
+        if (priceText != null)
+        {
+            priceText.gameObject.SetActive(false);
+        }
     }
 
     void CategorizeChildObjects()
@@ -150,26 +176,78 @@ public class SectionZoomController : MonoBehaviour
                 else if (touchedObject.tag == "Available")
                 {
                     Debug.Log($"Touched available seat!");
-                    
+
+                    // Get the price for this seat and show it
+                    float seatPrice = GetSeatPrice(touchedObject);
+                    ShowPriceText(seatPrice);
+
                     StartCoroutine(JustWait(touchedObject));
-                    //ZoomToPosition(touchedObject.transform.position, 1, )
-                    
                 }
-                // If touching a different section or non-section object, zoom out
-                /*else TODO: make into button instead
-                {
-                    Debug.Log($"Touching different section ({touchedSection}), zooming out");
-                    ZoomToOriginal();
-                    return;
-                }*/
             }
 
             // If we're not zoomed in, zoom into the touched section
             if (touchedSection != null)
             {
                 Debug.Log($"Zooming to section ({touchedSection})");
+                HidePriceText();
+                topViewButton.gameObject.SetActive(true);
+                topViewButton.onClick.AddListener(ZoomToOriginal);
                 ZoomToSection(touchedSection);
             }
+        }
+    }
+
+    // Method to determine seat price based on the seat object
+    float GetSeatPrice(GameObject seatObject)
+    {
+        // You can implement different logic here to determine price
+        // For example, based on seat name, position, or a custom component
+
+        // Option 1: Based on seat name
+        if (seatObject.name.Contains("Premium"))
+            return price3;
+        else if (seatObject.name.Contains("Standard"))
+            return price2;
+        else
+            return price1;
+
+        // Option 2: You could also add a custom component to each seat
+        // SeatInfo seatInfo = seatObject.GetComponent<SeatInfo>();
+        // if (seatInfo != null)
+        //     return seatInfo.price;
+
+        // Option 3: Based on section
+        // string section = GetObjectSection(seatObject);
+        // switch (section)
+        // {
+        //     case "MainSection": return price3;
+        //     case "LeftSection":
+        //     case "RightSection": return price2;
+        //     case "BackSection": return price1;
+        //     default: return price1;
+        // }
+    }
+
+    // Method to show price text
+    void ShowPriceText(float price)
+    {
+        if (priceText != null)
+        {
+            priceText.text = $"€{price:F0}";
+            priceText.gameObject.SetActive(true);
+            isInSeatView = true;
+            Debug.Log($"Showing price: €{price}");
+        }
+    }
+
+    // Method to hide price text
+    void HidePriceText()
+    {
+        if (priceText != null)
+        {
+            priceText.gameObject.SetActive(false);
+            isInSeatView = false;
+            Debug.Log("Hiding price text");
         }
     }
 
@@ -257,7 +335,7 @@ public class SectionZoomController : MonoBehaviour
         StartCoroutine(ZoomToPosition(targetPosition, targetSize, targetRotation, true));
     }
 
-    IEnumerator ZoomToPosition(Vector3 targetPosition, float targetSize, float targetRotation, bool zoomingIn = false)
+    IEnumerator ZoomToPosition(Vector3 targetPosition, float targetSize, float targetRotation, bool zoomingIn = false, bool toOriginal = false)
     {
         isZooming = true;
 
@@ -269,32 +347,17 @@ public class SectionZoomController : MonoBehaviour
 
         Vector3 startPosition = mainCamera.transform.position;
         float startSize = mainCamera.orthographicSize;
-        /*float startZRotation = currentCameraZRotation; // Use tracked Z rotation
-
-        // Get current X and Y rotations to preserve them
-        Vector3 currentEulerAngles = mainCamera.transform.eulerAngles;
-        float xRotation = currentEulerAngles.x;
-        float yRotation = currentEulerAngles.y;
-
-        // Handle rotation wrapping for smooth animation
-        float rotationDifference = Mathf.DeltaAngle(startZRotation, targetRotation);
-        float endZRotation = startZRotation + rotationDifference; */
 
         Quaternion qRotation;
 
-        /*
-        if (targetRotation > 0)
+        if (toOriginal)
+        {
+            qRotation = Quaternion.Euler(110, 90, targetRotation - 180);
+        }
+        else
+        {
             qRotation = Quaternion.Euler(90, 90, targetRotation);
-        else
-            qRotation = mainCamera.transform.rotation; */
-
-        /*
-        if (zoomingIn && targetRotation == 0)
-            qRotation = Quaternion.Euler(90, 90, 180);
-        else
-            qRotation = Quaternion.Euler(90, 90, targetRotation); */
-
-        qRotation = Quaternion.Euler(90, 90, targetRotation);
+        }
 
         float elapsedTime = 0f;
 
@@ -314,25 +377,25 @@ public class SectionZoomController : MonoBehaviour
             yield return null;
         }
 
-        //mainCamera.transform.rotation = Quaternion.RotateTowards(mainCamera.transform.rotation, myRotation, 1.0f);
-
         // Ensure final values are set exactly
-        
         mainCamera.transform.position = targetPosition;
         mainCamera.orthographicSize = targetSize;
-        //currentCameraZRotation = targetRotation; // Update tracked Z rotation
         mainCamera.transform.rotation = qRotation;
 
         // Update zoom state
-        isZoomed = isZooming;
-        if (!isZooming)
+        isZoomed = zoomingIn;
+        if (!zoomingIn)
         {
             currentZoomedSection = null;
 
-            if (camRotationScript != null)
+            if (camRotationScript != null && !toOriginal)
             {
                 camRotationScript.AllowExternalRotationControl = false;
                 Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
+            }
+            else
+            {
+                camRotationScript.Calibrate();
             }
         }
 
@@ -345,7 +408,29 @@ public class SectionZoomController : MonoBehaviour
         if (!isZooming)
         {
             Debug.Log("Zooming back to original position");
-            StartCoroutine(ZoomToPosition(originalCameraPosition, originalCameraSize, originalCameraRotation.z, false));
+
+            // Hide price text when leaving seat view
+            if (isInSeatView)
+            {
+                HidePriceText();
+            }
+
+            topViewButton.gameObject.SetActive(false);
+
+            StartCoroutine(ZoomToPosition(originalCameraPosition, originalCameraSize, originalCameraRotation.z, false, true));
+
+            // Reset the gyro initial rotation back to the original camera rotation
+            if (camRotationScript != null)
+            {
+                camRotationScript.AllowExternalRotationControl = true;
+                Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
+
+                camRotationScript.SetNewInitialRotation(originalCameraRotationQuaternion);
+                Debug.Log($"Reset gyro initial rotation to original: {originalCameraRotationQuaternion.eulerAngles}");
+
+                camRotationScript.AllowExternalRotationControl = true;
+                Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
+            }
         }
     }
 

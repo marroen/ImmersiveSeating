@@ -39,8 +39,8 @@ public class CamRotation : MonoBehaviour
     [SerializeField] private Vector3 targetOffset = Vector3.zero; // Offset to add to target position
 
     [Header("Debug Options")]
-    [SerializeField] private bool showDebug = true;
-    [SerializeField] private bool verboseDebug = true; // NEW: Toggle for more detailed debugging
+    [SerializeField] private bool showDebug = false;
+    [SerializeField] private bool verboseDebug = false; // NEW: Toggle for more detailed debugging
     [SerializeField] private bool useRawOrientation = false; // NEW: Skip calibration for testing
 
     private bool deviceMotionAvailable = false;
@@ -345,7 +345,8 @@ public class CamRotation : MonoBehaviour
 
         text.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0); // Ensure fully transparent
     }
-
+    
+    /*
     void OnGUI()
     {
         if (showDebug)
@@ -367,5 +368,5 @@ public class CamRotation : MonoBehaviour
 #endif
             }
         }
-    }
+    } */
 }
