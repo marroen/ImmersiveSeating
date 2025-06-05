@@ -181,7 +181,7 @@ public class SectionZoomController : MonoBehaviour
                     float seatPrice = GetSeatPrice(touchedObject);
                     ShowPriceText(seatPrice);
 
-                    StartCoroutine(JustWait(touchedObject));
+                    StartCoroutine(GoToSeat(touchedObject));
                 }
             }
 
@@ -233,10 +233,10 @@ public class SectionZoomController : MonoBehaviour
     {
         if (priceText != null)
         {
-            priceText.text = $"€{price:F0}";
+            priceText.text = $"ï¿½{price:F0}";
             priceText.gameObject.SetActive(true);
             isInSeatView = true;
-            Debug.Log($"Showing price: €{price}");
+            Debug.Log($"Showing price: ï¿½{price}");
         }
     }
 
@@ -251,7 +251,7 @@ public class SectionZoomController : MonoBehaviour
         }
     }
 
-    IEnumerator JustWait(GameObject touchedObject)
+    IEnumerator GoToSeat(GameObject touchedObject)
     {
         if (camRotationScript != null)
         {
@@ -335,7 +335,7 @@ public class SectionZoomController : MonoBehaviour
         StartCoroutine(ZoomToPosition(targetPosition, targetSize, targetRotation, true));
     }
 
-    IEnumerator ZoomToPosition(Vector3 targetPosition, float targetSize, float targetRotation, bool zoomingIn = false, bool toOriginal = false)
+    public IEnumerator ZoomToPosition(Vector3 targetPosition, float targetSize, float targetRotation, bool zoomingIn = false, bool toOriginal = false)
     {
         isZooming = true;
 
