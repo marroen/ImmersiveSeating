@@ -43,6 +43,7 @@ public class SectionZoomController : MonoBehaviour
     public float backSectionRotation = 180f;  // 180 degrees
 
     [Header("Price Display")]
+    public Button buyButton;
     public TextMeshProUGUI priceText; // Reference to the price text UI element
     public float price1 = 50f;  // Price for first seat type
     public float price2 = 75f;  // Price for second seat type
@@ -52,7 +53,6 @@ public class SectionZoomController : MonoBehaviour
     private float originalCameraSize;
     private Vector3 originalCameraRotation; // Store full rotation as Vector3
     private Quaternion originalCameraRotationQuaternion; // Store original rotation as Quaternion for gyro reset
-    private float currentCameraZRotation; // Track only Z rotation separately
     private bool isZooming = false;
 
     // Track current zoom state
@@ -85,29 +85,56 @@ public class SectionZoomController : MonoBehaviour
             camRotationSwipeScript = FindObjectOfType<CamRotationSwipe>();
             camRotationSwipeScript.AllowExternalRotationControl = true;
         }
-            
+
+        // Distinguish if launched from Deeplink or normally
         if (topViewButton != null)
         {
-            //topViewButton.onClick.AddListener(ZoomToOriginal);
-            topViewButton.gameObject.SetActive(false);
+            
+            // Deeplink
+            if (isInSeatView) 
+            {
+                topViewButton.onClick.AddListener(ZoomToOriginal);
+                topViewButton.gameObject.SetActive(true);
+                
+                // Set original camera values by hardcoding
+                originalCameraPosition = new Vector3(45f, 120f, -0.22f);
+                originalCameraSize = 5f;
+                originalCameraRotation = new Vector3(70f, 270f, 0f);
+                originalCameraRotationQuaternion = new Quaternion(0.40558f, -0.57923f, 0.40558f, 0.57923f);
+
+                // Make sure price text is visible
+                if (priceText != null && buyButton != null)
+                {
+                    priceText.gameObject.SetActive(true);
+                    buyButton.gameObject.SetActive(true);
+                }
+            }
+            // Normally
+            else
+            {
+                topViewButton.gameObject.SetActive(false);
+
+                // Set original camera values by reference
+                originalCameraPosition = mainCamera.transform.position;
+                originalCameraSize = mainCamera.orthographicSize;
+                originalCameraRotation = mainCamera.transform.eulerAngles; // Store full rotation
+                originalCameraRotationQuaternion = mainCamera.transform.rotation; // Store original rotation as Quaternion
+
+                // Make sure price text is initially hidden
+                if (priceText != null && buyButton != null)
+                {
+                    priceText.gameObject.SetActive(false);
+                    buyButton.gameObject.SetActive(false);
+                }
+            }
+            
             Debug.Log("topViewButton set up");
         }
-
-        // Store original camera settings
-        originalCameraPosition = mainCamera.transform.position;
-        originalCameraSize = mainCamera.orthographicSize;
-        originalCameraRotation = mainCamera.transform.eulerAngles; // Store full rotation
-        originalCameraRotationQuaternion = mainCamera.transform.rotation; // Store original rotation as Quaternion
-        currentCameraZRotation = originalCameraRotation.z; // Initialize current Z rotation
 
         // Categorize child objects by their tags
         CategorizeChildObjects();
 
-        // Make sure price text is initially hidden
-        if (priceText != null)
-        {
-            priceText.gameObject.SetActive(false);
-        }
+        
     }
 
     void CategorizeChildObjects()
@@ -192,9 +219,7 @@ public class SectionZoomController : MonoBehaviour
                 {
                     Debug.Log($"Touched available seat!");
 
-                    // Get the price for this seat and show it
-                    float seatPrice = GetSeatPrice(touchedObject);
-                    ShowPriceText(seatPrice);
+                    
 
                     StartCoroutine(GoToSeat(touchedObject));
                 }
@@ -229,28 +254,36 @@ public class SectionZoomController : MonoBehaviour
     // Method to show price text
     void ShowPriceText(float price)
     {
-        if (priceText != null)
+        if (priceText != null && buyButton != null)
         {
-            priceText.text = $"�{price:F0}";
+            priceText.text = $"€{price:F0}";
             priceText.gameObject.SetActive(true);
+            buyButton.gameObject.SetActive(true);
             isInSeatView = true;
-            Debug.Log($"Showing price: �{price}");
+            Debug.Log($"Showing price: €{price}");
         }
     }
 
     // Method to hide price text
     void HidePriceText()
     {
-        if (priceText != null)
+        if (priceText != null && buyButton != null)
         {
             priceText.gameObject.SetActive(false);
+            buyButton.gameObject.SetActive(false);
             isInSeatView = false;
-            Debug.Log("Hiding price text");
+            Debug.Log("Hiding price");
         }
     }
 
     public IEnumerator GoToSeat(GameObject touchedObject)
     {
+        isInSeatView = true;
+
+        // Get the price for this seat and show it
+        float seatPrice = GetSeatPrice(touchedObject);
+        ShowPriceText(seatPrice);
+
         if (camRotationGyroScript != null)
         {
             camRotationGyroScript.AllowExternalRotationControl = true;
@@ -282,12 +315,12 @@ public class SectionZoomController : MonoBehaviour
             Debug.Log("Camera positioned and gyro calibrated");
         }
 
-        // Calibrate and re-enable swipe
+        // Re-enable swipe
         if (camRotationSwipeScript != null)
         {
             camRotationSwipeScript.SetNewInitialRotation(centerLookingRotation);
             camRotationSwipeScript.AllowExternalRotationControl = false;
-            Debug.Log("Camera positioned and gyro calibrated");
+            Debug.Log("Camera positioned and swipe activated");
         }
     }
 

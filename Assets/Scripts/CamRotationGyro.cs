@@ -162,7 +162,6 @@ public class CamRotationGyro : MonoBehaviour
         if (statusText != null)
         {
             statusText.text = "Calibrated!";
-            //StartCoroutine(FadeOutText(statusText, 1.5f));
         }
 
         Debug.Log("Device orientation calibrated");
@@ -299,7 +298,7 @@ public class CamRotationGyro : MonoBehaviour
         float timeoutCounter = 0;
         while (timeoutCounter < 15.0f) // Check for 15 seconds
         {
-            // On non-WebGL platforms, permission is typically implicitly granted or not needed in this way
+            // Permission is typically implicitly granted or not needed in this way
             deviceMotionAvailable = true; // Assume available for native
             yield break;
 
@@ -345,28 +344,4 @@ public class CamRotationGyro : MonoBehaviour
 
         text.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0); // Ensure fully transparent
     }
-    
-    
-    void OnGUI()
-    {
-        if (showDebug)
-        {
-            // Basic debug text display
-            GUI.Label(new Rect(10, 10, 400, 30), debugText); // Increased width for longer messages
-
-            if (verboseDebug)
-            {
-                // More detailed debug info
-                GUI.Label(new Rect(10, 40, 300, 30), $"Device Motion Available: {deviceMotionAvailable}");
-                GUI.Label(new Rect(10, 70, 300, 30), $"Apply Calibration: {applyCalibration}");
-                GUI.Label(new Rect(10, 100, 300, 30), $"Use Raw Orientation: {useRawOrientation}");
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-                // WebGL specific debug info
-                GUI.Label(new Rect(10, 130, 300, 30), $"Orientation Events: {GetOrientationEventCount()}");
-                GUI.Label(new Rect(10, 160, 300, 30), $"Permission Granted: {(IsOrientationPermissionGranted() == 1)}");
-#endif
-            }
-        }
-    } 
 }

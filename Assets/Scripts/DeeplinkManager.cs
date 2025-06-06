@@ -94,6 +94,7 @@ public class DeepLinkManager : MonoBehaviour
                     return;
             }
 
+
             StartCoroutine(sectionZoomController.GoToSeat(touchedObject));
 
             //  bit of a hack, but required 
@@ -101,15 +102,12 @@ public class DeepLinkManager : MonoBehaviour
             sectionZoomController.isZoomed = true;
             sectionZoomController.topViewButton.gameObject.SetActive(true);
             sectionZoomController.topViewButton.onClick.AddListener(sectionZoomController.ZoomToOriginal);
-
-
-
         }
     }
 
     IEnumerator SetMode(string mode)
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.5f);
         var interactSwitcher = mainCamera?.GetComponent<InteractSwitcher>();
         if (interactSwitcher != null)
         {
@@ -121,55 +119,6 @@ public class DeepLinkManager : MonoBehaviour
             {
                 interactSwitcher.SwitchToGyro();
             }
-        }
-    }
-    IEnumerator GoToSeat(GameObject touchedObject)
-    {
-        // Small delay to ensure transform is applied
-
-        if (camRotationGyroScript != null)
-        {
-            camRotationGyroScript.AllowExternalRotationControl = true;
-        }
-
-        if (camRotationSwipeScript != null)
-        {
-            camRotationSwipeScript.AllowExternalRotationControl = true;
-        }
-
-        // Position and rotate camera
-        mainCamera.transform.position = touchedObject.transform.position + Vector3.up;
-        mainCamera.orthographicSize = 1;
-
-        Vector3 directionToCenter = (center.transform.position - mainCamera.transform.position);
-        directionToCenter.y = 0;
-        Quaternion centerLookingRotation = Quaternion.LookRotation(directionToCenter);
-
-        mainCamera.transform.rotation = centerLookingRotation;
-
-        yield return new WaitForSeconds(1f);
-
-        // Calibrate and re-enable gyro
-        if (camRotationGyroScript != null)
-        {
-
-            camRotationGyroScript.SetNewInitialRotation(centerLookingRotation);
-            camRotationGyroScript.AllowExternalRotationControl = false;
-            Debug.Log("Camera positioned and gyro calibrated");
-            var interactSwitcher = mainCamera?.GetComponent<InteractSwitcher>();
-            if (interactSwitcher != null)
-            {
-                interactSwitcher.SwitchToGyro();
-
-            }
-        }
-
-        // Calibrate and re-enable swipe
-        if (camRotationSwipeScript != null)
-        {
-            camRotationSwipeScript.SetNewInitialRotation(centerLookingRotation);
-            camRotationSwipeScript.AllowExternalRotationControl = false;
-            Debug.Log("Camera positioned and gyro calibrated");
         }
     }
 
