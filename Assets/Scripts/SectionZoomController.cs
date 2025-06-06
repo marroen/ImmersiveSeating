@@ -15,7 +15,8 @@ public class SectionZoomController : MonoBehaviour
     public GameObject center;
 
     [Header("Gyro Control")]
-    public CamRotation camRotationScript; // Reference to CamRotation script
+    public CamRotationGyro camRotationGyro; // Reference to CamRotation script
+    public CamRotationSwipe camRotationSwipe; // Reference to CamRotationSwipe script
 
     [Header("Top View")]
     public Button topViewButton;
@@ -68,8 +69,8 @@ public class SectionZoomController : MonoBehaviour
         if (mainCamera == null)
             mainCamera = Camera.main;
 
-        if (camRotationScript == null)
-            camRotationScript = FindObjectOfType<CamRotation>();
+        if (camRotationGyro == null)
+            camRotationGyro = FindObjectOfType<CamRotationGyro>();
 
         if (topViewButton != null)
         {
@@ -253,9 +254,13 @@ public class SectionZoomController : MonoBehaviour
 
     IEnumerator GoToSeat(GameObject touchedObject)
     {
-        if (camRotationScript != null)
+        if (camRotationGyro != null)
         {
-            camRotationScript.AllowExternalRotationControl = true;
+            camRotationGyro.AllowExternalRotationControl = true;
+        }
+        if (camRotationSwipe != null)
+        {
+            camRotationSwipe.AllowExternalRotationControl = true;
         }
 
         // Position and rotate camera
@@ -272,11 +277,15 @@ public class SectionZoomController : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         // Calibrate and re-enable gyro
-        if (camRotationScript != null)
+        if (camRotationGyro != null)
         {
-            camRotationScript.SetNewInitialRotation(centerLookingRotation);
-            camRotationScript.AllowExternalRotationControl = false;
+            camRotationGyro.SetNewInitialRotation(centerLookingRotation);
+            camRotationGyro.AllowExternalRotationControl = false;
             Debug.Log("Camera positioned and gyro calibrated");
+        }
+        if (camRotationSwipe != null)
+        {
+            camRotationSwipe.AllowExternalRotationControl = false;
         }
     }
 
@@ -339,10 +348,10 @@ public class SectionZoomController : MonoBehaviour
     {
         isZooming = true;
 
-        if (camRotationScript != null)
+        if (camRotationGyro != null)
         {
-            camRotationScript.AllowExternalRotationControl = true;
-            Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
+            camRotationGyro.AllowExternalRotationControl = true;
+            Debug.Log($"AllowExternal: {camRotationGyro.AllowExternalRotationControl}");
         }
 
         Vector3 startPosition = mainCamera.transform.position;
@@ -388,15 +397,16 @@ public class SectionZoomController : MonoBehaviour
         {
             currentZoomedSection = null;
 
-            if (camRotationScript != null && !toOriginal)
+            if (camRotationGyro != null && !toOriginal)
             {
-                camRotationScript.AllowExternalRotationControl = false;
-                Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
+                camRotationGyro.AllowExternalRotationControl = false;
+                Debug.Log($"AllowExternal: {camRotationGyro.AllowExternalRotationControl}");
             }
             else
             {
-                camRotationScript.Calibrate();
+                camRotationGyro.Calibrate();
             }
+            // TODO: Reset swipe control if needed?
         }
 
         isZooming = false;
@@ -420,17 +430,18 @@ public class SectionZoomController : MonoBehaviour
             StartCoroutine(ZoomToPosition(originalCameraPosition, originalCameraSize, originalCameraRotation.z, false, true));
 
             // Reset the gyro initial rotation back to the original camera rotation
-            if (camRotationScript != null)
+            if (camRotationGyro != null)
             {
-                camRotationScript.AllowExternalRotationControl = true;
-                Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
+                camRotationGyro.AllowExternalRotationControl = true;
+                Debug.Log($"AllowExternal: {camRotationGyro.AllowExternalRotationControl}");
 
-                camRotationScript.SetNewInitialRotation(originalCameraRotationQuaternion);
+                camRotationGyro.SetNewInitialRotation(originalCameraRotationQuaternion);
                 Debug.Log($"Reset gyro initial rotation to original: {originalCameraRotationQuaternion.eulerAngles}");
 
-                camRotationScript.AllowExternalRotationControl = true;
-                Debug.Log($"AllowExternal: {camRotationScript.AllowExternalRotationControl}");
+                camRotationGyro.AllowExternalRotationControl = true;
+                Debug.Log($"AllowExternal: {camRotationGyro.AllowExternalRotationControl}");
             }
+            // TODO // Reset swipe control if needed?
         }
     }
 

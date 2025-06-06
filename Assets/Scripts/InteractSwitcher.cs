@@ -4,8 +4,9 @@ using System.Collections;
 
 public class InteractSwitcher : MonoBehaviour
 {
+    
     [Header("Camera Scripts")]
-    [SerializeField] private CamRotation gyroScript;
+    [SerializeField] private CamRotationGyro gyroScript;
     [SerializeField] private CamRotationSwipe swipeScript;
 
     [Header("UI Buttons")]

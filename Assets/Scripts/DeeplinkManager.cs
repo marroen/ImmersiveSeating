@@ -26,7 +26,8 @@ public class DeepLinkManager : MonoBehaviour
     public GameObject center;
 
     public SectionZoomController sectionZoomController;
-    public CamRotation camRotationScript;
+    public CamRotationGyro camRotationGyro;
+    public CamRotationSwipe camRotationSwipe;
 
     private void Awake()
     {
@@ -58,7 +59,26 @@ public class DeepLinkManager : MonoBehaviour
             return;
         }
 
-        bool directSeat = false;
+        string mode = "gyro";  // Default mode if not specified in the URL
+        if (parameters.TryGetValue("mode", out string modeParam))
+        {
+            mode = modeParam.ToLower();
+        }
+
+        var interactSwitcher = mainCamera?.GetComponent<InteractSwitcher>();
+        if (interactSwitcher != null)
+        {
+            if (mode == "gyro")
+            {
+                interactSwitcher.SwitchToGyro();
+            }
+            else if (mode == "swipe")
+            {
+                interactSwitcher.SwitchToSwipe();
+            }
+        }
+
+
         if (parameters.TryGetValue("seat", out string directSeatStr))
         {
 
@@ -78,44 +98,9 @@ public class DeepLinkManager : MonoBehaviour
                     Debug.Log("No valid direct seat given: should be premium, back or standard");
                     return;
             }
-            directSeat = true;
             StartCoroutine(GoToSeat(touchedObject));  // Start the coroutine to go to the selected seat
 
         }
-
-
-        string mode = "gyro";  // Default mode if not specified in the URL
-        if (parameters.TryGetValue("mode", out string modeParam))
-        {
-            mode = modeParam.ToLower();
-        }
-
-        var interactSwitcher = mainCamera?.GetComponent<InteractSwitcher>();
-        if (interactSwitcher != null)
-        {
-            if (mode == "gyro")
-            {
-                interactSwitcher.SwitchToGyro();
-            }
-            else if (mode == "swipe")
-            {
-                interactSwitcher.SwitchToSwipe();
-
-                // I think I am fighting SwitchToSwipe, which resets rotations - this is a workaround
-                if (directSeat)
-                {
-
-                    // TODO this workaround does not seem to work (maybe a wait is required?)
-                    Vector3 directionToCenter = (center.transform.position - mainCamera.transform.position);
-                    directionToCenter.y = 0;
-                    Quaternion centerLookingRotation = Quaternion.LookRotation(directionToCenter);
-
-                    mainCamera.transform.rotation = centerLookingRotation;
-                }
-            }
-        }
-
-
 
     }
 
@@ -126,11 +111,9 @@ public class DeepLinkManager : MonoBehaviour
 
     public IEnumerator GoToSeat(GameObject touchedObject)
     {
-
-        if (camRotationScript != null)
-        {
-            camRotationScript.AllowExternalRotationControl = true;
-        }
+        // Temporarily disable gyro and swipe
+        if (camRotationGyro != null) camRotationGyro.AllowExternalRotationControl = true;
+        if (camRotationSwipe != null) camRotationSwipe.AllowExternalRotationControl = true;
 
         // Position and rotate camera
         mainCamera.transform.position = touchedObject.transform.position + Vector3.up;
@@ -147,12 +130,13 @@ public class DeepLinkManager : MonoBehaviour
         Debug.Log("Camera positioned and waiting for gyro calibration");
 
         // Calibrate and re-enable gyro
-        if (camRotationScript != null)
+        if (camRotationGyro != null)
         {
-            camRotationScript.SetNewInitialRotation(centerLookingRotation);
-            camRotationScript.AllowExternalRotationControl = false;
+            camRotationGyro.SetNewInitialRotation(centerLookingRotation);
+            camRotationGyro.AllowExternalRotationControl = false;
             Debug.Log("Camera positioned and gyro calibrated");
         }
+        if (camRotationSwipe != null) camRotationSwipe.AllowExternalRotationControl = false;
     }
 
     private void ExtractParametersFromUrl(string url)

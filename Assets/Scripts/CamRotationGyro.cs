@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Runtime.InteropServices;
 
-public class CamRotation : MonoBehaviour
+public class CamRotationGyro : MonoBehaviour
 {
     [Header("External Control")]
     [SerializeField] private bool allowExternalRotationControl = false; // NEW: Allow external scripts to control rotation
@@ -222,7 +222,7 @@ public class CamRotation : MonoBehaviour
             Vector3 currentEuler = transform.rotation.eulerAngles;
             // Displaying targetRotation euler angles might be more informative here before Slerp
             Vector3 targetEuler = targetRotation.eulerAngles;
-            debugText = $"TargetRot X:{targetEuler.x:F0}° Y:{targetEuler.y:F0}° Z:{targetEuler.z:F0}°";
+            debugText = $"TargetRot X:{targetEuler.x:F0}ï¿½ Y:{targetEuler.y:F0}ï¿½ Z:{targetEuler.z:F0}ï¿½";
         }
     }
 

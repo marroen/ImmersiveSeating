@@ -4,6 +4,14 @@ using System.Collections;
 
 public class CamRotationSwipe : MonoBehaviour
 {
+    [Header("External Control")]
+    [SerializeField] private bool allowExternalRotationControl = false; // NEW: Allow external scripts to control rotation
+    public bool AllowExternalRotationControl
+    {
+        get { return allowExternalRotationControl; }
+        set { allowExternalRotationControl = value; }
+    }
+
     [Header("Touch Settings")]
     [SerializeField] private bool enableTouchRotation = true;
     [SerializeField] private float touchSensitivity = 2f;
@@ -85,7 +93,8 @@ public class CamRotationSwipe : MonoBehaviour
         // Set up reset button if available
         if (resetButton != null)
         {
-            resetButton.onClick.AddListener(() => {
+            resetButton.onClick.AddListener(() =>
+            {
                 Debug.Log("Reset button clicked");
                 ResetRotation();
             });
@@ -273,7 +282,7 @@ public class CamRotationSwipe : MonoBehaviour
         // Debug output
         if (verboseDebug && updateCount % 60 == 0) // Log every 60 frames
         {
-            debugText = $"Rotation X:{currentVerticalAngle:F1}° Y:{currentHorizontalAngle:F1}°";
+            debugText = $"Rotation X:{currentVerticalAngle:F1}ï¿½ Y:{currentHorizontalAngle:F1}ï¿½";
             if (isTouching)
             {
                 debugText += $" | Delta:{currentDelta.x:F1},{currentDelta.y:F1}";
@@ -404,11 +413,11 @@ public class CamRotationSwipe : MonoBehaviour
                 GUI.Label(new Rect(10, 40, 300, 30), $"Touch Rotation Enabled: {enableTouchRotation}");
                 GUI.Label(new Rect(10, 70, 300, 30), $"Is Touching: {isTouching}");
                 GUI.Label(new Rect(10, 100, 300, 30), $"Touch Sensitivity: {touchSensitivity}");
-                GUI.Label(new Rect(10, 130, 300, 30), $"Vertical Limits: {minVerticalAngle}° to {maxVerticalAngle}°");
+                GUI.Label(new Rect(10, 130, 300, 30), $"Vertical Limits: {minVerticalAngle}ï¿½ to {maxVerticalAngle}ï¿½");
 
                 if (enableHorizontalLimits)
                 {
-                    GUI.Label(new Rect(10, 160, 300, 30), $"Horizontal Limits: {minHorizontalAngle}° to {maxHorizontalAngle}°");
+                    GUI.Label(new Rect(10, 160, 300, 30), $"Horizontal Limits: {minHorizontalAngle}ï¿½ to {maxHorizontalAngle}ï¿½");
                 }
                 else
                 {
