@@ -34,6 +34,7 @@ public class DeepLinkManager : MonoBehaviour
     {
         if (Instance == null)
         {
+            Debug.Log("Awaking DeeplinkManager");
             Instance = this;
             Application.deepLinkActivated += OnDeepLinkActivated;
             if (!string.IsNullOrEmpty(Application.absoluteURL))
@@ -50,6 +51,7 @@ public class DeepLinkManager : MonoBehaviour
 
     private void OnDeepLinkActivated(string url)
     {
+        Debug.Log("Deeplink activated!");
         DeeplinkURL = url;  // Store the deep link URL
         parameters.Clear();  // Clear any previously stored parameters
         ExtractParametersFromUrl(url);

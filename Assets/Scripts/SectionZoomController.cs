@@ -75,11 +75,17 @@ public class SectionZoomController : MonoBehaviour
             mainCamera = Camera.main;
 
         if (camRotationGyroScript == null)
+        {
             camRotationGyroScript = FindObjectOfType<CamRotationGyro>();
-
+            camRotationGyroScript.AllowExternalRotationControl = true;
+        }
+            
         if (camRotationSwipeScript == null)
+        {
             camRotationSwipeScript = FindObjectOfType<CamRotationSwipe>();
-
+            camRotationSwipeScript.AllowExternalRotationControl = true;
+        }
+            
         if (topViewButton != null)
         {
             //topViewButton.onClick.AddListener(ZoomToOriginal);

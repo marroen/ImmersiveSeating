@@ -162,7 +162,7 @@ public class InteractSwitcher : MonoBehaviour
                     yield return null;
                     try
                     {
-                        //swipeScript.ResetRotation();
+                        //swipeScript.ResetRotation(); This rotates the screen away from desired viewpoint if enabled
                         Debug.Log("Swipe script reset");
                     }
                     catch (System.Exception e)
