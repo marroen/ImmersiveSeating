@@ -220,22 +220,6 @@ public class SectionZoomController : MonoBehaviour
             return price2;
         else
             return price1;
-
-        // Option 2: You could also add a custom component to each seat
-        // SeatInfo seatInfo = seatObject.GetComponent<SeatInfo>();
-        // if (seatInfo != null)
-        //     return seatInfo.price;
-
-        // Option 3: Based on section
-        // string section = GetObjectSection(seatObject);
-        // switch (section)
-        // {
-        //     case "MainSection": return price3;
-        //     case "LeftSection":
-        //     case "RightSection": return price2;
-        //     case "BackSection": return price1;
-        //     default: return price1;
-        // }
     }
 
     // Method to show price text

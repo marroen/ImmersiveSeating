@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class DeepLinkManager : MonoBehaviour
 {
@@ -59,7 +60,14 @@ public class DeepLinkManager : MonoBehaviour
             return;
         }
 
-        bool directSeat = false;
+        string mode = "gyro";  // Default mode if not specified in the URL
+        if (parameters.TryGetValue("mode", out string modeParam))
+        {
+            mode = modeParam.ToLower();
+        }
+        StartCoroutine(SetMode(mode));
+
+
         if (parameters.TryGetValue("seat", out string directSeatStr))
         {
 
@@ -79,54 +87,36 @@ public class DeepLinkManager : MonoBehaviour
                     Debug.Log("No valid direct seat given: should be premium, back or standard");
                     return;
             }
-            directSeat = true;
-            StartCoroutine(GoToSeat(touchedObject));  // Start the coroutine to go to the selected seat
+
+            // Shitshow 
+            // I initially used GoToSeat, but that doesnt set all the right variables, nor the right rotation?
+            // ZoomToPosition does make sure those are set correctly, so clicking on sections when in seat is not allowed, but rotation is fricked
+            // StartCoroutine(sectionZoomController.ZoomToPosition(, 1, 0f, true));
+            // StartCoroutine(GoToSeat(touchedObject));  
 
         }
+    }
 
-
-        string mode = "gyro";  // Default mode if not specified in the URL
-        if (parameters.TryGetValue("mode", out string modeParam))
-        {
-            mode = modeParam.ToLower();
-        }
-
+    IEnumerator SetMode(string mode)
+    {
+        yield return new WaitForSeconds(1f);
         var interactSwitcher = mainCamera?.GetComponent<InteractSwitcher>();
         if (interactSwitcher != null)
         {
-            if (mode == "gyro")
+            if (mode == "swipe")
+            {
+                interactSwitcher.SwitchToSwipe();
+            }
+            else if (mode == "gyro")
             {
                 interactSwitcher.SwitchToGyro();
             }
-            else if (mode == "swipe")
-            {
-                interactSwitcher.SwitchToSwipe();
-
-                // I think I am fighting SwitchToSwipe, which resets rotations - this is a workaround
-                if (directSeat)
-                {
-
-                    // TODO this workaround does not seem to work (maybe a wait is required?)
-                    Vector3 directionToCenter = (center.transform.position - mainCamera.transform.position);
-                    directionToCenter.y = 0;
-                    Quaternion centerLookingRotation = Quaternion.LookRotation(directionToCenter);
-
-                    mainCamera.transform.rotation = centerLookingRotation;
-                }
-            }
         }
-
-
-
     }
-
-    // public void tester()
-    // {
-    //     StartCoroutine(GoToSeat(premiumSeat));  // Start the coroutine to go to the selected seat
-    // }
-
-    public IEnumerator GoToSeat(GameObject touchedObject)
+    IEnumerator GoToSeat(GameObject touchedObject)
     {
+        // Small delay to ensure transform is applied
+        yield return new WaitForSeconds(1f);
 
         if (camRotationGyroScript != null)
         {
@@ -141,6 +131,7 @@ public class DeepLinkManager : MonoBehaviour
         // Position and rotate camera
         mainCamera.transform.position = touchedObject.transform.position + Vector3.up;
         mainCamera.orthographicSize = 1;
+        yield return new WaitForSeconds(1f);
 
         Vector3 directionToCenter = (center.transform.position - mainCamera.transform.position);
         directionToCenter.y = 0;
@@ -148,24 +139,29 @@ public class DeepLinkManager : MonoBehaviour
 
         mainCamera.transform.rotation = centerLookingRotation;
 
-        // Small delay to ensure transform is applied
-        yield return new WaitForSeconds(0.5f);
-        Debug.Log("Camera positioned and waiting for gyro calibration");
+        yield return new WaitForSeconds(1f);
 
         // Calibrate and re-enable gyro
         if (camRotationGyroScript != null)
         {
+
             camRotationGyroScript.SetNewInitialRotation(centerLookingRotation);
             camRotationGyroScript.AllowExternalRotationControl = false;
             Debug.Log("Camera positioned and gyro calibrated");
+            var interactSwitcher = mainCamera?.GetComponent<InteractSwitcher>();
+            if (interactSwitcher != null)
+            {
+                interactSwitcher.SwitchToGyro();
+
+            }
         }
 
-        // Use swipe if selected
+        // Calibrate and re-enable swipe
         if (camRotationSwipeScript != null)
         {
             camRotationSwipeScript.SetNewInitialRotation(centerLookingRotation);
             camRotationSwipeScript.AllowExternalRotationControl = false;
-            Debug.Log("Camera positioned and swipe activated");
+            Debug.Log("Camera positioned and gyro calibrated");
         }
     }
 

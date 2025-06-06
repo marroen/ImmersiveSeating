@@ -302,7 +302,7 @@ public class CamRotationSwipe : MonoBehaviour
         // Debug output
         if (verboseDebug && updateCount % 60 == 0) // Log every 60 frames
         {
-            debugText = $"Rotation X:{currentVerticalAngle:F1}° Y:{currentHorizontalAngle:F1}°";
+            debugText = $"Rotation X:{currentVerticalAngle:F1}ï¿½ Y:{currentHorizontalAngle:F1}ï¿½";
             if (isTouching)
             {
                 debugText += $" | Delta:{currentDelta.x:F1},{currentDelta.y:F1}";

@@ -222,7 +222,7 @@ public class CamRotationGyro : MonoBehaviour
             Vector3 currentEuler = transform.rotation.eulerAngles;
             // Displaying targetRotation euler angles might be more informative here before Slerp
             Vector3 targetEuler = targetRotation.eulerAngles;
-            debugText = $"TargetRot X:{targetEuler.x:F0}° Y:{targetEuler.y:F0}° Z:{targetEuler.z:F0}°";
+            debugText = $"TargetRot X:{targetEuler.x:F0}ï¿½ Y:{targetEuler.y:F0}ï¿½ Z:{targetEuler.z:F0}ï¿½";
         }
     }
 
@@ -346,7 +346,7 @@ public class CamRotationGyro : MonoBehaviour
         text.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0); // Ensure fully transparent
     }
     
-    /*
+    
     void OnGUI()
     {
         if (showDebug)
@@ -368,5 +368,5 @@ public class CamRotationGyro : MonoBehaviour
 #endif
             }
         }
-    } */
+    } 
 }
