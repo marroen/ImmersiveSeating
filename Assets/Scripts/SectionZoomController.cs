@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,8 +56,10 @@ public class SectionZoomController : MonoBehaviour
     private bool isZooming = false;
 
     // Track current zoom state
-    private string currentZoomedSection = null;
-    private bool isZoomed = false;
+    public string currentZoomedSection = null;
+    // We could maybe make a getter/setter here 
+
+    public bool isZoomed = false;
     private bool isInSeatView = false; // Track if we're in seat POV
 
     // Lists to store child objects by section
@@ -190,20 +193,15 @@ public class SectionZoomController : MonoBehaviour
                     StartCoroutine(GoToSeat(touchedObject));
                 }
             }
-            else
+            else if (touchedSection != null)
             {
-                // If we're not zoomed in, zoom into the touched section
-                if (touchedSection != null)
-                {
-                    Debug.Log($"Zooming to section ({touchedSection})");
-                    HidePriceText();
-                    topViewButton.gameObject.SetActive(true);
-                    topViewButton.onClick.AddListener(ZoomToOriginal);
-                    ZoomToSection(touchedSection);
-                }
+                Debug.Log($"Zooming to section ({touchedSection})");
+                HidePriceText();
+                topViewButton.gameObject.SetActive(true);
+                topViewButton.onClick.AddListener(ZoomToOriginal);
+                ZoomToSection(touchedSection);
             }
-
-            
+        
         }
     }
 
@@ -245,7 +243,7 @@ public class SectionZoomController : MonoBehaviour
         }
     }
 
-    IEnumerator GoToSeat(GameObject touchedObject)
+    public IEnumerator GoToSeat(GameObject touchedObject)
     {
         if (camRotationGyroScript != null)
         {
@@ -412,7 +410,7 @@ public class SectionZoomController : MonoBehaviour
                 {
                     camRotationGyroScript.Calibrate();
                 }
-                
+
             }
 
             if (camRotationSwipeScript != null)

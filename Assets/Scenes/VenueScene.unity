@@ -2077,6 +2077,8 @@ MonoBehaviour:
   price1: 50
   price2: 75
   price3: 100
+  currentZoomedSection: 
+  isZoomed: 0
 --- !u!1 &603752587
 GameObject:
   m_ObjectHideFlags: 0
@@ -4318,7 +4320,7 @@ GameObject:
   - component: {fileID: 1282087693}
   - component: {fileID: 1282087692}
   m_Layer: 0
-  m_Name: Sections
+  m_Name: f
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4382,6 +4384,8 @@ MonoBehaviour:
   price1: 50
   price2: 75
   price3: 100
+  currentZoomedSection: 
+  isZoomed: 0
 --- !u!4 &1282087693
 Transform:
   m_ObjectHideFlags: 0

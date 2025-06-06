@@ -72,27 +72,35 @@ public class DeepLinkManager : MonoBehaviour
         {
 
             GameObject touchedObject;
+            string section;
             switch (directSeatStr)
             {
                 case "premium":
                     touchedObject = premiumSeat;
+                    section = "LeftSection";
                     break;
                 case "back":
                     touchedObject = backSeat;
+                    section = "BackSection";
                     break;
                 case "standard":
                     touchedObject = standardSeat;
+                    section = "MainSection";
                     break;
                 default:
                     Debug.Log("No valid direct seat given: should be premium, back or standard");
                     return;
             }
 
-            // Shitshow 
-            // I initially used GoToSeat, but that doesnt set all the right variables, nor the right rotation?
-            // ZoomToPosition does make sure those are set correctly, so clicking on sections when in seat is not allowed, but rotation is fricked
-            // StartCoroutine(sectionZoomController.ZoomToPosition(, 1, 0f, true));
-            // StartCoroutine(GoToSeat(touchedObject));  
+            StartCoroutine(sectionZoomController.GoToSeat(touchedObject));
+
+            //  bit of a hack, but required 
+            sectionZoomController.currentZoomedSection = section;
+            sectionZoomController.isZoomed = true;
+            sectionZoomController.topViewButton.gameObject.SetActive(true);
+            sectionZoomController.topViewButton.onClick.AddListener(sectionZoomController.ZoomToOriginal);
+
+
 
         }
     }
@@ -116,7 +124,6 @@ public class DeepLinkManager : MonoBehaviour
     IEnumerator GoToSeat(GameObject touchedObject)
     {
         // Small delay to ensure transform is applied
-        yield return new WaitForSeconds(1f);
 
         if (camRotationGyroScript != null)
         {
@@ -131,7 +138,6 @@ public class DeepLinkManager : MonoBehaviour
         // Position and rotate camera
         mainCamera.transform.position = touchedObject.transform.position + Vector3.up;
         mainCamera.orthographicSize = 1;
-        yield return new WaitForSeconds(1f);
 
         Vector3 directionToCenter = (center.transform.position - mainCamera.transform.position);
         directionToCenter.y = 0;
