@@ -295,7 +295,7 @@ public class SectionZoomController : MonoBehaviour
         }
 
         // Position and rotate camera
-        mainCamera.transform.position = touchedObject.transform.position + Vector3.up;
+        mainCamera.transform.position = touchedObject.transform.position + (Vector3.up / 2);
         mainCamera.orthographicSize = 1;
 
         Vector3 directionToCenter = (center.transform.position - mainCamera.transform.position);
