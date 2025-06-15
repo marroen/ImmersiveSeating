@@ -107,6 +107,7 @@ public class SectionZoomController : MonoBehaviour
                 {
                     priceText.gameObject.SetActive(true);
                     buyButton.gameObject.SetActive(true);
+                    buyButton.onClick.AddListener(GoToCheckout);
                 }
             }
             // Normally
@@ -259,6 +260,7 @@ public class SectionZoomController : MonoBehaviour
             priceText.text = $"€{price:F0}";
             priceText.gameObject.SetActive(true);
             buyButton.gameObject.SetActive(true);
+            buyButton.onClick.AddListener(GoToCheckout);
             isInSeatView = true;
             Debug.Log($"Showing price: €{price}");
         }
@@ -515,6 +517,13 @@ public class SectionZoomController : MonoBehaviour
                 Debug.Log($"AllowExternal: {camRotationSwipeScript.AllowExternalRotationControl}");
             }
         }
+    }
+
+    public void GoToCheckout()
+    {
+        string url = "https://www.figma.com/proto/rEtgn2mevgBUDv52bY81Y9/Classes-and-Assignments?node-id=1349-17674&viewport=396%2C455%2C0.23&t=2IEkZAPUcST6YcvH-0&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=1349%3A17674&show-proto-sidebar=1";
+        Application.OpenURL(url);
+        Debug.Log("Went to URL");
     }
 
     // Public method to manually set section zoom positions (useful for runtime adjustments)
