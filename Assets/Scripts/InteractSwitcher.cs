@@ -35,21 +35,11 @@ public class InteractSwitcher : MonoBehaviour
 
     void Start()
     {
-        // Store original button colors
-        if (gyroButton != null)
-        {
-            gyroButtonColors = gyroButton.colors;
-        }
-
-        if (swipeButton != null)
-        {
-            swipeButtonColors = swipeButton.colors;
-        }
-
-        // Set up button listeners
+        // Set up buttons
         SetupButtons();
 
         // Set initial mode
+        //
         SetRotationMode(defaultMode);
 
         Debug.Log("CameraRotationSwitcher initialized");
@@ -59,8 +49,12 @@ public class InteractSwitcher : MonoBehaviour
     {
         if (gyroButton != null)
         {
+            gyroButtonColors = gyroButton.colors;
             gyroButton.onClick.AddListener(() => SwitchToGyro());
             Debug.Log("Gyro button set up");
+
+            // Initially hide
+            gyroButton.gameObject.SetActive(false);
         }
         else
         {
@@ -69,13 +63,29 @@ public class InteractSwitcher : MonoBehaviour
 
         if (swipeButton != null)
         {
+            swipeButtonColors = swipeButton.colors;
             swipeButton.onClick.AddListener(() => SwitchToSwipe());
             Debug.Log("Swipe button set up");
+
+            // Initially hide
+            swipeButton.gameObject.SetActive(false);
         }
         else
         {
             Debug.LogWarning("Swipe button not assigned in inspector!");
         }
+    }
+
+    public void ShowButtons()
+    {
+        gyroButton.gameObject.SetActive(true);
+        swipeButton.gameObject.SetActive(true);
+    }
+
+    public void HideButtons()
+    {
+        gyroButton.gameObject.SetActive(false);
+        swipeButton.gameObject.SetActive(false);
     }
 
     public void SwitchToGyro()

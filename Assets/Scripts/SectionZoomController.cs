@@ -21,6 +21,12 @@ public class SectionZoomController : MonoBehaviour
     [Header("Swipe Control")]
     public CamRotationSwipe camRotationSwipeScript; // Reference to CamRotation script
 
+    [Header("Interact Switcher")]
+    public InteractSwitcher interactSwitcher; // Reference to InteractSwitcher script
+
+    [Header("Seat Highlighter")]
+    public SeatHighlight seatHighlighter; // Reference to SeatHighlight script
+
     [Header("Top View")]
     public Button topViewButton;
 
@@ -55,18 +61,23 @@ public class SectionZoomController : MonoBehaviour
     private Quaternion originalCameraRotationQuaternion; // Store original rotation as Quaternion for gyro reset
     private bool isZooming = false;
 
+    [SerializeField] private GameObject guidingText; // assign your UI text object in inspector
+
     // Track current zoom state
     public string currentZoomedSection = null;
     // We could maybe make a getter/setter here 
 
     public bool isZoomed = false;
     private bool isInSeatView = false; // Track if we're in seat POV
+    private bool hasInteracted = false; // Track first input to remove text guidance
 
     // Lists to store child objects by section
     private List<GameObject> mainSectionObjects = new List<GameObject>();
     private List<GameObject> leftSectionObjects = new List<GameObject>();
     private List<GameObject> rightSectionObjects = new List<GameObject>();
     private List<GameObject> backSectionObjects = new List<GameObject>();
+
+    [SerializeField] private GameObject[] seatHighlights;
 
     void Start()
     {
@@ -86,6 +97,16 @@ public class SectionZoomController : MonoBehaviour
             camRotationSwipeScript.AllowExternalRotationControl = true;
         }
 
+        if (interactSwitcher == null)
+        {
+            interactSwitcher = FindObjectOfType<InteractSwitcher>();
+        }
+
+        if (seatHighlighter == null)
+        {
+            seatHighlighter = FindObjectOfType<SeatHighlight>();
+        }
+
         // Distinguish if launched from Deeplink or normally
         if (topViewButton != null)
         {
@@ -95,6 +116,11 @@ public class SectionZoomController : MonoBehaviour
             {
                 topViewButton.onClick.AddListener(ZoomToOriginal);
                 topViewButton.gameObject.SetActive(true);
+
+                if (interactSwitcher != null)
+                {
+                    interactSwitcher.ShowButtons();
+                }
                 
                 // Set original camera values by hardcoding
                 originalCameraPosition = new Vector3(45f, 120f, -0.22f);
@@ -134,8 +160,6 @@ public class SectionZoomController : MonoBehaviour
 
         // Categorize child objects by their tags
         CategorizeChildObjects();
-
-        
     }
 
     void CategorizeChildObjects()
@@ -177,6 +201,11 @@ public class SectionZoomController : MonoBehaviour
         // Handle touch input for Android
         if (Input.touchCount > 0 && !isZooming)
         {
+            if (!hasInteracted)
+            {
+                hasInteracted = true;
+                guidingText.SetActive(false);
+            }
             Touch touch = Input.GetTouch(0);
 
             if (touch.phase == TouchPhase.Began)
@@ -186,9 +215,14 @@ public class SectionZoomController : MonoBehaviour
         }
 
         // Handle mouse input for testing in editor
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_WEBGL
         if (Input.GetMouseButtonDown(0) && !isZooming)
         {
+            if (!hasInteracted)
+            {
+                hasInteracted = true;
+                guidingText.SetActive(false);
+            }
             HandleTouchInput(Input.mousePosition);
         }
 #endif
@@ -280,6 +314,12 @@ public class SectionZoomController : MonoBehaviour
 
     public IEnumerator GoToSeat(GameObject touchedObject)
     {
+        foreach (GameObject highlight in seatHighlights)
+        {
+            if (highlight != null)
+                highlight.SetActive(false);
+        }
+
         isInSeatView = true;
 
         // Get the price for this seat and show it
@@ -294,6 +334,11 @@ public class SectionZoomController : MonoBehaviour
         if (camRotationSwipeScript != null)
         {
             camRotationSwipeScript.AllowExternalRotationControl = true;
+        }
+
+        if (interactSwitcher != null)
+        {
+            interactSwitcher.ShowButtons();
         }
 
         // Position and rotate camera
@@ -515,6 +560,23 @@ public class SectionZoomController : MonoBehaviour
 
                 camRotationSwipeScript.AllowExternalRotationControl = true;
                 Debug.Log($"AllowExternal: {camRotationSwipeScript.AllowExternalRotationControl}");
+            }
+
+            if (interactSwitcher != null)
+            {
+                interactSwitcher.HideButtons();
+            }
+
+            if (hasInteracted)
+            {
+                hasInteracted = false;
+                guidingText.SetActive(true);
+            }
+
+            foreach (GameObject highlight in seatHighlights)
+            {
+                if (highlight != null)
+                    highlight.SetActive(true);
             }
         }
     }

@@ -124,6 +124,7 @@ public class CamRotationSwipe : MonoBehaviour
         if (!enableTouchRotation)
             return;
 
+
         HandleTouchInput();
         UpdateCameraRotation();
     }
@@ -152,7 +153,7 @@ public class CamRotationSwipe : MonoBehaviour
     private void HandleTouchInput()
     {
         // Handle mouse input for editor testing
-        if (Application.isEditor)
+        if (Application.isEditor || Application.platform == RuntimePlatform.WebGLPlayer)
         {
             HandleMouseInput();
             return;
